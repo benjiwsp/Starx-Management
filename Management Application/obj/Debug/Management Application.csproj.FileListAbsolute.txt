@@ -24,3 +24,7 @@ E:\Starx\Programs\Management Application\Management Application\obj\Debug\Manage
 E:\Starx\Programs\Management Application\Management Application\obj\Debug\Management Application.g.resources
 E:\Starx\Programs\Management Application\Management Application\obj\Debug\Management_Application.Properties.Resources.resources
 E:\Starx\Programs\Management Application\Management Application\obj\Debug\Management Application.csproj.GenerateResource.Cache
+E:\Starx\Programs\Management Application\Management Application\bin\Debug\AWSSDK.Core.dll
+E:\Starx\Programs\Management Application\Management Application\bin\Debug\AWSSDK.S3.dll
+E:\Starx\Programs\Management Application\Management Application\bin\Debug\AWSSDK.Core.xml
+E:\Starx\Programs\Management Application\Management Application\bin\Debug\AWSSDK.S3.xml

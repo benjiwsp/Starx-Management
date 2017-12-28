@@ -16,6 +16,10 @@ using System.IO;
 using System.IO.Compression;
 using MySql.Data.MySqlClient;
 using System.Configuration;
+
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon;
 namespace Management_Application
 {
     /// <summary>
@@ -26,17 +30,75 @@ namespace Management_Application
         ArrayList uploadList = new ArrayList();
         private MySqlConnection myConnection;
         private MySqlCommand myCommand;
+        static string bucketNames = "starxbucket";
+        static string keyNames = "testfolder2/testing2.docx";
+        static string filePaths = @"E:\documents\resignletter.docx";
 
+        static IAmazonS3 client;
         public MainWindow()
         {
             InitializeComponent();
             listBoxFiles.AllowDrop = true;
             listBoxFiles.Drop += listBoxFiles_DragDrop; 
             listBoxFiles.DragEnter += listBoxFiles_DragEnter;
-            
+            //     IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(RegionEndpoint.EUWest1);
+         
+
+     //       Console.WriteLine("Press any key to continue...");
+       //     Console.ReadKey();
+
+      //      WritingAnObject(bucketNames, keyNames, filePaths);
+           
 
         }
+        static void WritingAnObject(string bucketName, string keyName, string filePath)
+        {
+            try
+            {
+              PutObjectRequest putRequest1 = new PutObjectRequest
+                {
+                    BucketName = bucketName,
+                    Key = keyName,
+                    ContentBody = "sample text"
+                };
+        
+               
+                PutObjectResponse response1 = client.PutObject(putRequest1);
+                    
 
+                // 2. Put object-set ContentType and add metadata.
+                PutObjectRequest putRequest2 = new PutObjectRequest
+                {
+
+                    BucketName = bucketName,
+                    Key = keyName,
+                    FilePath = filePath,
+                    ContentType = "text/plain"
+                };
+                putRequest2.Metadata.Add("x-amz-meta-title", "someTitle");
+
+                PutObjectResponse response2 = client.PutObject(putRequest2);
+
+            }
+            catch (AmazonS3Exception amazonS3Exception)
+            {
+                if (amazonS3Exception.ErrorCode != null &&
+                    (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId")
+                    ||
+                    amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
+                {
+                    Console.WriteLine("Check the provided AWS Credentials.");
+                    Console.WriteLine(
+                        "For service sign up go to http://aws.amazon.com/s3");
+                }
+                else
+                {
+                    Console.WriteLine(
+                        "Error occurred. Message:'{0}' when writing an object"
+                        , amazonS3Exception.Message);
+                }
+            }
+        }
 
         private void listBoxFiles_DragDrop(object sender, DragEventArgs e)
         {
@@ -54,16 +116,35 @@ namespace Management_Application
         private void UploadBtn_Click(object sender, RoutedEventArgs e)
         {
             string name = ConfigurationManager.AppSettings["connectionString"];
-            MessageBox.Show(name);
-            uploadList.Clear();
-            foreach (string file in listBoxFiles.Items) {
-                uploadList.Add(file);
+        //    MessageBox.Show(name);
+            string fileName = "";
+            string folderName = "";
 
+
+            foreach (string file in listBoxFiles.Items)
+            {
+              //  uploadList.Add(file);
+                fileName = System.IO.Path.GetFileName(file);
+                folderName = System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(file));
+                keyNames = folderName + "/" + fileName;
                 MessageBox.Show(file);
+                string fullPath = file.Replace(@"\\", "/");
+                MessageBox.Show(file.Replace(@"\", "/"));
+                using (client = new AmazonS3Client(Amazon.RegionEndpoint.APNortheast1))
+                //   using (client = new  AmazonS3Client(Amazon.S3.AmazonS3Client..APN1))
+                {
+                    WritingAnObject(bucketNames, keyNames, fullPath);
+                    //         Console.WriteLine("Uploading an object");
+
+                }
+            
+              //  MessageBox.Show(file + "           " + keyNames);
             }
-            MySqlDataReader rdr;
-            myConnection = new MySqlConnection(name);
-            myConnection.Open();
+            uploadList.Clear();
+                 
+          //  MySqlDataReader rdr;
+           // myConnection = new MySqlConnection(name);
+          //  myConnection.Open();
 
  //           myCommand = new MySqlCommand("insert into CustomerDetails values ('', 'starx','999','3');", myConnection);
  //          myCommand.ExecuteNonQuery();
@@ -94,7 +175,8 @@ namespace Management_Application
                 destFile.Flush();
                 destFile.Dispose();
             }
-             */
+          
+        
             myCommand = new MySqlCommand ("Select id, Customer from CustomerDetails",myConnection);
             rdr = myCommand.ExecuteReader();
           
@@ -109,7 +191,7 @@ namespace Management_Application
             listBoxFiles.Items.Clear();
 
             
-            
+               */
 
         }
 
